@@ -1,3 +1,14 @@
+# Acknowledgements 
+I (dwarfthe34) used some rendering code from the [xsdk](https://github.com/xenosworks/xsdk/),
+and I used a tool known as OpenCode to help patch bugs and make rendering work.
+
+# Documentation 
+There is documentation for controller input in the [Xbox360 controller input file](./XBOX360_CONTROLLER_INPUT.md)
+
+Build and packaging instructions are in [README_XBOX360.md](./README_XBOX360.md).
+
+## Original Godot README.md
+
 # Godot Engine
 
 <p align="center">

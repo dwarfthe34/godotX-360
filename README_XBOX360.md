@@ -1,9 +1,3 @@
-# Godot X360 xsdk fork
-
-This is a clean, source-only copy of the Godot 3.6.3 Xbox 360 xsdk fork.
-
-Compiled binaries, object files, static libraries, SCons caches, build logs, generated files, and downloaded toolchains were removed so this directory can be committed to GitHub.
-
 ## Build
 
 Requires SCons, the usual Godot 3.6.3 build dependencies, and an Xbox 360 xsdk installation available separately.

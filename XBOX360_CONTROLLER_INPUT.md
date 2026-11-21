@@ -86,4 +86,4 @@ func _process(delta):
 - Only **controller 0** is polled (Xbox 360 supports up to 4, but this port only reads the first)
 - Stick values are normalized from raw signed 16-bit (-32768 to 32767) to float (-1.0 to 1.0)
 - Trigger values are normalized from 0-255 to 0.0-1.0
-- No deadzone is applied — you may want to add a small deadzone in your GDScript code
+- No deadzone is applied to raw `get_joy_axis()` values — you may want to add a small deadzone in your GDScript code. Input Map actions have their own deadzone setting (the demo uses `0.75`).
