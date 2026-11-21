@@ -8,6 +8,7 @@ There is documentation for controller input in the [Xbox360 controller input fil
 Build and packaging instructions are in [README_XBOX360.md](./README_XBOX360.md).
 
 # Important
+***IF YOU TEST THE GAME YOU MADE ON A REAL 360 THERE WILL BE FLASHING LGHTS***
 The result may not look good at all and that is something I need to fix.
 To make a game you need to compile this (if you want you can compile with ``tools=yes`` to get the GUI
 then compile with ``tools=no`` to get the .ppc), make a Godot 3.6.3 project and export it (doesn't really matter if you export for Windows, Linux or anything else)
