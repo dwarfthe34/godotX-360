@@ -612,7 +612,13 @@ bool SceneTree::iteration(float p_time) {
 void SceneTree::_update_font_oversampling(float p_ratio) {
 #ifdef MODULE_FREETYPE_ENABLED
 	if (use_font_oversampling) {
+#if defined(XSDK)
+		// The Xbox UI scales its controls up; keep glyphs rasterized at 2x so
+		// the scaled text stays sharp instead of looking like an upscaled atlas.
+		DynamicFontAtSize::font_oversampling = 2.0f;
+#else
 		DynamicFontAtSize::font_oversampling = p_ratio;
+#endif
 		DynamicFont::update_oversampling();
 	}
 #endif // MODULE_FREETYPE_ENABLED

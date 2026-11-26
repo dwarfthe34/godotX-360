@@ -215,7 +215,13 @@ Error DynamicFontAtSize::_load() {
 	return OK;
 }
 
+#if defined(XSDK)
+// Xbox text controls are scaled up in the packaged UI; rasterize the glyph
+// atlas at 2x so the scaled result lands closer to one texel per screen pixel.
+float DynamicFontAtSize::font_oversampling = 2.0;
+#else
 float DynamicFontAtSize::font_oversampling = 1.0;
+#endif
 
 float DynamicFontAtSize::get_height() const {
 	return ascent + descent;
@@ -683,8 +689,15 @@ DynamicFontAtSize::FontTexturePosition DynamicFontAtSize::_find_texture_pos_for_
 			// font is displayed at a non-default scale with filtering enabled.
 			if (p_color_size == 2) {
 				for (int i = 0; i < texsize * texsize * p_color_size; i += 2) {
+#if defined(XSDK)
+					// The Xbox canvas shader samples red for coverage; upstream keeps
+					// coverage in green and uses the texture's alpha in its GLES shader.
+					w[i + 0] = 0;
+					w[i + 1] = 255;
+#else
 					w[i + 0] = 255;
 					w[i + 1] = 0;
+#endif
 				}
 			} else {
 				for (int i = 0; i < texsize * texsize * p_color_size; i += 4) {
@@ -734,12 +747,23 @@ DynamicFontAtSize::Character DynamicFontAtSize::_bitmap_to_character(FT_Bitmap b
 					case FT_PIXEL_MODE_MONO: {
 						int byte = i * bitmap.pitch + (j >> 3);
 						int bit = 1 << (7 - (j % 8));
+#if defined(XSDK)
+						// Xbox's canvas shader reads coverage from red, not alpha.
+						wr[ofs + 0] = (bitmap.buffer[byte] & bit) ? 255 : 0;
+						wr[ofs + 1] = 255;
+#else
 						wr[ofs + 0] = 255; //grayscale as 1
 						wr[ofs + 1] = (bitmap.buffer[byte] & bit) ? 255 : 0;
+#endif
 					} break;
 					case FT_PIXEL_MODE_GRAY:
+#if defined(XSDK)
+						wr[ofs + 0] = bitmap.buffer[i * bitmap.pitch + j];
+						wr[ofs + 1] = 255;
+#else
 						wr[ofs + 0] = 255; //grayscale as 1
 						wr[ofs + 1] = bitmap.buffer[i * bitmap.pitch + j];
+#endif
 						break;
 					case FT_PIXEL_MODE_BGRA: {
 						int ofs_color = i * bitmap.pitch + (j << 2);
@@ -755,6 +779,31 @@ DynamicFontAtSize::Character DynamicFontAtSize::_bitmap_to_character(FT_Bitmap b
 				}
 			}
 		}
+#if defined(XSDK)
+		if (color_size == 2) {
+			// Slightly thicken grayscale glyphs so Xbox text reads a little bolder
+			// than the raw FreeType outline, without changing the font resource.
+			Vector<uint8_t> src;
+			src.resize(mw * mh);
+			uint8_t *srcp = src.ptrw();
+			for (int y = 0; y < mh; y++) {
+				for (int x = 0; x < mw; x++) {
+					srcp[y * mw + x] = wr[((tex_pos.y + y) * tex.texture_size + tex_pos.x + x) * 2];
+				}
+			}
+			for (int y = 0; y < mh; y++) {
+				for (int x = 0; x < mw; x++) {
+					const int idx = y * mw + x;
+					uint8_t v = srcp[idx];
+					if (x > 0) v = MAX(v, (uint8_t)(srcp[idx - 1] * 2 / 3));
+					if (x + 1 < mw) v = MAX(v, (uint8_t)(srcp[idx + 1] * 2 / 3));
+					if (y > 0) v = MAX(v, (uint8_t)(srcp[idx - mw] / 2));
+					if (y + 1 < mh) v = MAX(v, (uint8_t)(srcp[idx + mw] / 2));
+					wr[((tex_pos.y + y) * tex.texture_size + tex_pos.x + x) * 2] = v;
+				}
+			}
+		}
+#endif
 	}
 
 	Character chr;

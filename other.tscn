@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://xbox_button_back_icon.png" type="Texture" id=1]
+[ext_resource path="res://other.gd" type="Script" id=2]
+[ext_resource path="res://button_theme.tres" type="Theme" id=3]
+
+[node name="Control" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 2 )
+
+[node name="Label" type="Label" parent="."]
+margin_left = 321.0
+margin_top = 161.0
+margin_right = 384.0
+margin_bottom = 192.0
+rect_scale = Vector2( 2.96, 2.92 )
+theme = ExtResource( 3 )
+text = "it worked!
+hit the \"    \" button 
+to exit"
+
+[node name="XboxButtonBackIcon" type="Sprite" parent="."]
+position = Vector2( 496, 229 )
+scale = Vector2( 0.5, 0.5 )
+texture = ExtResource( 1 )
